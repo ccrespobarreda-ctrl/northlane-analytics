@@ -10,6 +10,7 @@ export.
 
 **[View the live report →](https://ccrespobarreda-ctrl.github.io/northlane-analytics/)**
 
+![Contribution margin waterfall](docs/dashboard.png)
 ---
 
 ## What this demonstrates
