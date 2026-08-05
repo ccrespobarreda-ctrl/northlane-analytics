@@ -1,0 +1,91 @@
+name: analytics-pipeline
+
+# Daily refresh plus a check on every PR. GitHub Actions rather than Airflow:
+# a single daily batch does not justify an orchestrator that needs its own
+# database and a machine to run on.
+on:
+  schedule:
+    - cron: "0 6 * * *"          # 06:00 UTC daily
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # CI runs against a throwaway Postgres, so a pull request can never touch
+    # the warehouse the dashboard reads from.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: analytics
+          POSTGRES_PASSWORD: analytics
+          POSTGRES_DB: northlane
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://analytics:analytics@localhost:5432/northlane
+      PGHOST: localhost
+      PGPORT: "5432"
+      PGUSER: analytics
+      PGPASSWORD: analytics
+      PGDATABASE: northlane
+      DBT_PROFILES_DIR: ${{ github.workspace }}/dbt
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate raw dataset
+        run: python src/generate_data.py --out data/raw --emit-reference
+
+      # The generator must still produce the findings it was designed to
+      # produce. If a calibration change kills one, the build fails here
+      # rather than in a client meeting.
+      - name: Validate planted findings
+        run: python src/validate_findings.py
+
+      - name: Load raw layer into Postgres
+        run: python src/load_to_postgres.py --dir data/raw
+
+      - name: Build and test models
+        run: dbt build --project-dir dbt --profiles-dir dbt
+
+      # The decisive check: does the pipeline recover the truth from the
+      # corrupted export? Loading without errors is not the same as loading
+      # correctly.
+      - name: Reconcile marts against ground truth
+        run: python src/reconcile_marts.py
+
+      # The demo page must never drift from the warehouse. Rebuilding it in CI
+      # means a stale figure fails the build rather than sitting on the site.
+      - name: Rebuild the static dashboard
+        env:
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+        run: |
+          python src/export_dashboard_data.py > powerbi/dashboard_data.json
+          python src/build_dashboard.py
+          test -s docs/index.html
+
+      - name: Upload dbt artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbt-target
+          path: dbt/target/
+          retention-days: 14

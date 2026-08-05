@@ -1,0 +1,85 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: >
+      Cast order headers. NOTE: order_id is deliberately NOT tested for
+      uniqueness -- duplicate checkout retries exist in the source and are
+      removed in int_orders_conformed. Asserting uniqueness here would fail the
+      pipeline on a known, handled defect.
+    columns:
+      - name: order_id
+        tests: [not_null]
+      - name: order_date
+        description: Null here means parse_mixed_date met a fourth date format.
+        tests: [not_null]
+      - name: customer_key
+        tests: [not_null]
+      - name: order_net_revenue
+        tests: [not_null]
+      - name: shipping_zone
+        tests:
+          - accepted_values:
+              values: [2, 3, 4, 5, 6, 7, 8]
+              quote: false
+
+  - name: stg_order_lines
+    columns:
+      - name: order_line_key
+        tests: [unique, not_null]
+      - name: order_id
+        tests: [not_null]
+      - name: order_date
+        tests: [not_null]
+      - name: quantity
+        tests: [not_null]
+
+  - name: stg_products
+    columns:
+      - name: product_key
+        tests: [unique, not_null]
+      - name: sku
+        tests: [not_null]
+      - name: valid_from
+        tests: [not_null]
+      - name: valid_to
+        tests: [not_null]
+      - name: list_price
+        tests: [not_null]
+
+  - name: stg_returns
+    columns:
+      - name: return_id
+        tests: [unique, not_null]
+      - name: return_date
+        tests: [not_null]
+      - name: quantity_returned
+        tests: [not_null]
+      - name: return_reason
+        tests:
+          - accepted_values:
+              values: [size_too_small, size_too_large, quality,
+                       not_as_described, changed_mind, damaged_in_transit]
+
+  - name: stg_customers
+    columns:
+      - name: customer_key
+        tests: [unique, not_null]
+      - name: email
+        tests: [not_null]
+
+  - name: stg_geography
+    columns:
+      - name: state_code
+        tests: [unique, not_null]
+      - name: census_region
+        tests:
+          - accepted_values:
+              values: [Northeast, Midwest, South, West]
+
+  - name: stg_ad_spend
+    columns:
+      - name: spend_date
+        tests: [not_null]
+      - name: spend
+        tests: [not_null]

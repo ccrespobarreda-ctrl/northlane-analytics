@@ -1,0 +1,22 @@
+name: northlane
+version: "1.0.0"
+config-version: 2
+profile: northlane
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  northlane:
+    staging:
+      +materialized: view
+      +schema: stg
+    intermediate:
+      +materialized: view
+      +schema: int
+    marts:
+      +materialized: table
+      +schema: marts

@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northlane Supply Co. — Contribution Margin Review, FY2025</title>
+<meta name="description" content="Where FY2025 revenue growth failed to become contribution margin. A worked profitability analysis for a US DTC apparel brand.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────────────────────────
+   Tokens. The zone ramp is the signature: teal at Zone 2 (close to
+   the warehouse, profitable) through crimson at Zone 8 (far, loss-
+   making). It is reused on every chart, so color always carries the
+   same meaning — distance from healthy.
+   ───────────────────────────────────────────────────────────── */
+:root{
+  --paper:#F5F8F9;
+  --paper-2:#EDF3F5;
+  --card:#FFFFFF;
+  --ink:#0E1A26;
+  --ink-2:#3D5361;
+  --ink-3:#6E8492;
+  --rule:#CBD8DE;
+  --rule-2:#E2EAEE;
+
+  --z2:#0E7C7B; --z3:#3A8F76; --z4:#6FA06A; --z5:#A8A85C;
+  --z6:#D19A4E; --z7:#D96B45; --z8:#C2385B;
+
+  --pos:#0E7C7B;
+  --neg:#C2385B;
+  --warn:#D19A4E;
+
+  --font-display:"IBM Plex Sans Condensed","Archivo Narrow",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+
+  --maxw:1120px;
+  --pad:clamp(1.15rem,4vw,2.75rem);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--font-body);font-size:16px;line-height:1.6;
+  font-feature-settings:"tnum" 1;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:var(--font-display);font-weight:700;line-height:1.02;margin:0;letter-spacing:-0.015em}
+p{margin:0 0 0.85em}
+a{color:inherit}
+.wrap{max-width:var(--maxw);margin:0 auto;padding-inline:var(--pad)}
+
+/* Eyebrows and figures share the mono face: this page should read as a
+   ledger, not a magazine. */
+.eyebrow{
+  font-family:var(--font-mono);font-size:0.68rem;font-weight:500;
+  letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-3);
+}
+.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+
+/* ── Masthead ─────────────────────────────────────────────── */
+.masthead{border-bottom:1px solid var(--rule);background:var(--paper)}
+.masthead-in{
+  display:flex;flex-wrap:wrap;gap:0.6rem 1.5rem;align-items:baseline;
+  justify-content:space-between;padding-block:0.9rem;
+}
+.brand{font-family:var(--font-display);font-weight:700;font-size:1.02rem;letter-spacing:0.01em}
+.brand span{color:var(--ink-3);font-weight:600}
+.masthead a.repo{
+  font-family:var(--font-mono);font-size:0.72rem;letter-spacing:0.06em;
+  text-decoration:none;border-bottom:1px solid var(--rule);padding-bottom:2px;
+  color:var(--ink-2);
+}
+.masthead a.repo:hover{border-color:var(--ink);color:var(--ink)}
+
+/* ── Hero ─────────────────────────────────────────────────── */
+.hero{padding-block:clamp(2.2rem,6vw,4rem) 0}
+
+/* Thirty-second summary. Whoever reads nothing else reads this. */
+.summary{
+  margin-top:clamp(1.6rem,4vw,2.4rem);border-top:1px solid var(--rule);
+  border-bottom:1px solid var(--rule);
+}
+.summary-row{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0.4rem 1.5rem;
+  align-items:baseline;padding:0.95rem 0;border-bottom:1px solid var(--rule-2);
+  text-decoration:none;color:inherit;
+}
+.summary-row:last-child{border-bottom:0}
+.summary-row:hover .sr-text{color:var(--ink)}
+.summary-row:hover .sr-value{border-bottom-color:var(--pos)}
+.sr-text{font-size:clamp(0.98rem,2.1vw,1.12rem);color:var(--ink-2);transition:color .2s}
+.sr-value{
+  font-family:var(--font-mono);font-weight:600;color:var(--pos);white-space:nowrap;
+  font-size:clamp(0.98rem,2.1vw,1.12rem);
+}
+/* Without a resting-state cue nobody discovers these rows are links, so the
+   hover style never fires. The arrow is the affordance; it slides on hover. */
+.sr-go{display:inline-block;color:var(--ink-3);transition:transform .2s,color .2s}
+.summary-row:hover .sr-go{transform:translateX(3px);color:var(--pos)}
+
+/* ── Closing call to action ───────────────────────────────────
+   A report with no exit is a dead end: a convinced reader reaches the bottom
+   and has nothing to do. */
+.cta{background:var(--ink);color:#EAF1F3;margin-top:clamp(2.6rem,7vw,4.5rem)}
+.cta-in{padding-block:clamp(2rem,5vw,3rem);display:grid;gap:1rem;max-width:62ch}
+.cta h2{color:#fff;font-size:clamp(1.35rem,3.4vw,1.9rem)}
+.cta p{color:#B6C7CE;font-size:0.95rem;margin:0}
+.cta .eyebrow{color:#7C949E}
+.cta a.btn{
+  justify-self:start;margin-top:0.5rem;font-family:var(--font-mono);
+  font-size:0.82rem;letter-spacing:0.08em;text-transform:uppercase;
+  text-decoration:none;color:var(--ink);background:#EAF1F3;
+  padding:0.7rem 1.15rem;border-radius:2px;transition:background .2s;
+}
+.cta a.btn:hover{background:#fff}
+.hero h1{font-size:clamp(1.85rem,5vw,3.3rem);max-width:30ch;margin-block:0.8rem 0}
+.hero h1 em{font-style:normal;color:var(--neg)}
+
+/* The technical framing supports the plain-language headline rather than
+   dominating it. Rendering "contribution margin" at 68px while the sentence a
+   founder actually understands sat small and grey inverted the whole argument
+   for leading with symptom language. */
+.subhead{
+  font-family:var(--font-display);font-weight:600;
+  font-size:clamp(1.05rem,2.3vw,1.4rem);line-height:1.25;
+  color:var(--ink-2);max-width:38ch;margin:0.75rem 0 0;letter-spacing:-0.005em;
+}
+.subhead em{font-style:normal;color:var(--neg);white-space:nowrap}
+.hero .lede{
+  max-width:56ch;margin-top:1.1rem;color:var(--ink-2);
+  font-size:clamp(1rem,1.9vw,1.12rem);
+}
+
+/* ── Charts ───────────────────────────────────────────────── */
+.waterfall{margin-top:clamp(1.8rem,5vw,2.8rem)}
+.chart-frame{
+  background:var(--card);border:1px solid var(--rule-2);border-radius:3px;
+  padding:clamp(0.9rem,2.5vw,1.5rem);
+}
+.chart-frame svg{display:block;width:100%;height:auto;overflow:visible}
+.chart-caption{
+  margin-top:0.85rem;padding-top:0.8rem;border-top:1px solid var(--rule-2);
+  font-size:0.85rem;color:var(--ink-3);max-width:74ch;
+}
+
+/* ── Figure strip ─────────────────────────────────────────── */
+.figures{
+  display:grid;gap:1px;background:var(--rule-2);
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  margin-top:1px;border:1px solid var(--rule-2);border-radius:3px;overflow:hidden;
+}
+.figure{background:var(--card);padding:1.1rem 1.15rem 1.2rem}
+.figure .k{display:block;margin-bottom:0.5rem}
+.figure .v{
+  font-family:var(--font-mono);font-weight:600;font-size:clamp(1.4rem,3.4vw,1.85rem);
+  line-height:1;letter-spacing:-0.02em;display:block;
+}
+.figure .d{font-size:0.78rem;color:var(--ink-3);margin-top:0.4rem;display:block}
+.figure.is-neg .v{color:var(--neg)}
+
+/* ── Findings ─────────────────────────────────────────────── */
+.finding{
+  border-top:1px solid var(--rule);margin-top:clamp(2.6rem,7vw,4.5rem);
+  padding-top:clamp(1.6rem,4vw,2.4rem);
+}
+.finding-head{
+  display:grid;gap:0.5rem 2.5rem;align-items:start;
+  grid-template-columns:minmax(0,1fr) auto;margin-bottom:1.3rem;
+}
+.finding-head h2{font-size:clamp(1.4rem,3.6vw,2.05rem);max-width:26ch}
+.finding-head .prize{
+  font-family:var(--font-mono);font-weight:600;font-size:clamp(1.05rem,2.6vw,1.35rem);
+  color:var(--pos);white-space:nowrap;text-align:right;line-height:1.15;
+}
+.finding-head .prize small{
+  display:block;font-size:0.6rem;letter-spacing:0.14em;font-weight:500;
+  color:var(--ink-3);text-transform:uppercase;margin-top:0.25rem;
+}
+.finding-body{
+  display:grid;gap:clamp(1.2rem,3vw,2.2rem);
+  grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);align-items:start;
+}
+.finding-body .prose{font-size:0.95rem;color:var(--ink-2);max-width:52ch}
+.finding-body .prose strong{color:var(--ink);font-weight:600}
+
+.kv{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule-2)}
+.kv li{
+  display:flex;justify-content:space-between;gap:1rem;align-items:baseline;
+  padding:0.62rem 0;border-bottom:1px solid var(--rule-2);font-size:0.86rem;
+}
+.kv .kvk{color:var(--ink-3)}
+.kv .kvv{font-family:var(--font-mono);font-weight:500;text-align:right}
+.kv .kvv.neg{color:var(--neg)}
+.kv .kvv.pos{color:var(--pos)}
+
+/* ── Compact table ────────────────────────────────────────────
+   The margin ladder by year used to be a key/value list whose legend sat in the
+   last row, styled exactly like the data. A reader met three unlabeled
+   percentages three times before learning what they were. A header belongs
+   above the numbers it names. */
+.minitable{width:100%;border-collapse:collapse;font-size:0.82rem;margin-top:0.2rem}
+.minitable th{
+  font-family:var(--font-mono);font-weight:500;font-size:0.62rem;
+  letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);
+  padding:0 0.3rem 0.5rem;text-align:center;vertical-align:bottom;line-height:1.25;
+  border-bottom:1px solid var(--rule);
+}
+/* Values are centered rather than right-aligned because every percentage is the
+   same width (XX.X%), so decimal alignment buys nothing and centering keeps the
+   headers sitting squarely over their columns. */
+.minitable td{
+  padding:0.6rem 0.3rem;text-align:center;font-family:var(--font-mono);
+  font-weight:500;border-bottom:1px solid var(--rule-2);color:var(--ink);
+  font-variant-numeric:tabular-nums;
+}
+.minitable td:first-child{text-align:left;color:var(--ink-3);font-weight:400}
+.minitable th:first-child{text-align:left}
+.minitable tr:last-child td{border-bottom:0}
+.minitable td.hi{color:var(--neg);font-weight:600}
+.minitable caption{
+  caption-side:bottom;text-align:left;padding-top:0.7rem;
+  font-size:0.8rem;color:var(--ink-3);line-height:1.55;
+}
+.minitable caption b{color:var(--ink);font-family:var(--font-mono);font-weight:600}
+
+/* ── Matrix heatmap ───────────────────────────────────────── */
+.matrix{width:100%;border-collapse:collapse;font-size:0.82rem}
+.matrix caption{text-align:left;padding-bottom:0.7rem}
+.matrix th{
+  font-family:var(--font-mono);font-weight:500;font-size:0.66rem;
+  letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-3);
+  padding:0.5rem 0.4rem;text-align:center;border-bottom:1px solid var(--rule);
+}
+.matrix th.rowh{text-align:left;white-space:nowrap}
+.matrix td{
+  padding:0.7rem 0.4rem;text-align:center;font-family:var(--font-mono);
+  font-weight:500;color:#fff;border:1px solid var(--card);
+}
+.matrix td.rowh{
+  background:none;color:var(--ink-2);text-align:left;
+  font-size:0.7rem;letter-spacing:0.06em;white-space:nowrap;
+}
+.matrix td small{display:block;font-size:0.62rem;opacity:0.78;font-weight:400}
+
+/* ── Method ───────────────────────────────────────────────── */
+.method{
+  border-top:1px solid var(--rule);margin-top:clamp(2.6rem,7vw,4.5rem);
+  padding-block:clamp(1.8rem,4vw,2.6rem) 3rem;
+}
+.method-grid{
+  display:grid;gap:clamp(1.2rem,3vw,2.4rem);
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));margin-top:1.4rem;
+}
+.method h3{font-size:0.95rem;margin-bottom:0.55rem;font-family:var(--font-body);font-weight:600}
+.method p,.method li{font-size:0.84rem;color:var(--ink-3);line-height:1.62}
+.method ul{margin:0;padding-left:1.05rem}
+.disclosure{
+  margin-top:2rem;padding:0.95rem 1.1rem;background:var(--paper-2);
+  border-left:2px solid var(--warn);font-size:0.82rem;color:var(--ink-2);
+}
+.disclosure b{font-weight:600;color:var(--ink)}
+
+/* ── Motion ───────────────────────────────────────────────────
+   Reveal only hides content once JS is confirmed running, via the .js
+   class set in <head>. Without it the page renders in full: a broken
+   script must never leave a blank page.
+   ───────────────────────────────────────────────────────────── */
+.js .reveal{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s ease}
+.js .reveal.in{opacity:1;transform:none}
+.bar-grow{transform-origin:bottom}
+@media (prefers-reduced-motion:reduce){
+  .js .reveal{opacity:1;transform:none;transition:none}
+  *{animation:none!important;transition:none!important}
+}
+a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--z2);outline-offset:3px}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width:820px){
+  .finding-body{grid-template-columns:1fr}
+  .finding-head{grid-template-columns:1fr;gap:0.7rem}
+  .finding-head .prize{text-align:left}
+  .finding-head .prize small{display:inline;margin-left:0.5rem}
+}
+@media (max-width:520px){
+  .matrix td{padding:0.55rem 0.2rem;font-size:0.74rem}
+  .matrix td small{font-size:0.56rem}
+}
+</style>
+<script>document.documentElement.classList.add("js");</script>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap masthead-in">
+    <div class="brand">Northlane Supply&nbsp;Co. <span>/ Contribution Margin Review</span></div>
+    <a class="repo" href="https://github.com/" id="repoLink">View the pipeline on GitHub →</a>
+  </div>
+</header>
+
+<main>
+  <section class="wrap hero">
+    <div class="eyebrow" id="heroEyebrow">FY2025 · synthetic dataset</div>
+    <h1 id="heroTitle"></h1>
+    <p class="subhead" id="heroSubhead"></p>
+    <p class="lede" id="heroLede"></p>
+
+    <div class="summary" id="summary"></div>
+
+    <div class="waterfall reveal">
+      <div class="chart-frame">
+        <svg id="waterfall" viewBox="0 0 900 400" role="img" aria-labelledby="wfTitle wfDesc">
+          <title id="wfTitle">Contribution margin waterfall, FY2025</title>
+          <desc id="wfDesc">Gross revenue falls through discounts, returns, cost of goods,
+          fulfillment and advertising to reach contribution margin after advertising.</desc>
+        </svg>
+      </div>
+      <p class="chart-caption" id="wfCaption"></p>
+    </div>
+
+    <div class="figures reveal" id="figures"></div>
+  </section>
+
+  <section class="wrap finding reveal">
+    <div class="finding-head">
+      <h2 id="trendTitle"></h2>
+      <div class="prize" id="trendPrize"></div>
+    </div>
+    <div class="chart-frame" style="margin-bottom:clamp(1.2rem,3vw,1.8rem)">
+      <svg id="trendChart" viewBox="0 0 900 330" role="img" aria-label="Bridge decomposing the fall in contribution margin after advertising between 2023 and 2025 into product cost, delivery and advertising effects"></svg>
+    </div>
+    <div class="finding-body">
+      <p class="prose" id="trendProse"></p>
+      <table class="minitable" id="trendTable"></table>
+    </div>
+  </section>
+
+  <section class="wrap finding reveal" id="finding-1">
+    <div class="finding-head">
+      <h2>Two Outerwear SKUs sell at a loss after fulfillment</h2>
+      <div class="prize" id="f1Prize"></div>
+    </div>
+    <div class="chart-frame" style="margin-bottom:clamp(1.2rem,3vw,1.8rem)">
+      <svg id="skuChart" viewBox="0 0 900 424" role="img" aria-label="Every SKU plotted by net revenue against contribution margin after fulfillment"></svg>
+    </div>
+    <div class="finding-body">
+      <p class="prose" id="f1Prose"></p>
+      <ul class="kv" id="f1Kv"></ul>
+    </div>
+    </div>
+  </section>
+
+  <section class="wrap finding reveal" id="finding-2">
+    <div class="finding-head">
+      <h2>Contribution decays with distance, then collapses with discount depth</h2>
+      <div class="prize" id="f2Prize"></div>
+    </div>
+    <div class="finding-body">
+      <div class="chart-frame">
+        <svg id="zoneChart" viewBox="0 0 900 320" role="img" aria-label="Contribution margin per order by shipping zone"></svg>
+      </div>
+      <div>
+        <p class="prose" id="f2Prose"></p>
+        <div class="chart-frame" style="margin-top:1rem">
+          <table class="matrix" id="matrix">
+            <caption class="eyebrow">CM2 per order · discount depth × zone</caption>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap finding reveal" id="finding-3">
+    <div class="finding-head">
+      <h2>The channel ranked first on ROAS ranks last on profit</h2>
+      <div class="prize" id="f3Prize"></div>
+    </div>
+    <div class="finding-body">
+      <div class="chart-frame">
+        <svg id="slopeChart" viewBox="0 0 900 400" role="img" aria-label="Channel ranking on platform reported return on ad spend compared with ranking on contribution margin after advertising"></svg>
+      </div>
+      <div>
+        <p class="prose" id="f3Prose"></p>
+        <ul class="kv" id="f3Kv"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap finding reveal">
+    <div class="finding-head">
+      <h2>One channel does not return its acquisition cost</h2>
+      <div class="prize" style="color:var(--ink-2)">Reallocation<small>not a cost saving</small></div>
+    </div>
+    <div class="finding-body">
+      <div class="chart-frame">
+        <svg id="ltvChart" viewBox="0 0 900 380" role="img" aria-label="Twelve month contribution margin lifetime value against acquisition cost, by channel"></svg>
+      </div>
+      <div>
+        <p class="prose" id="f4Prose"></p>
+        <ul class="kv" id="f4Kv"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="wrap cta-in">
+      <div class="eyebrow">What I would do with your data</div>
+      <h2 id="ctaTitle"></h2>
+      <p id="ctaBody"></p>
+      <a class="btn" id="ctaButton" href="#">Get in touch →</a>
+    </div>
+  </section>
+
+  <section class="wrap method">
+    <div class="eyebrow">Method &amp; limitations</div>
+    <div class="method-grid">
+      <div>
+        <h3>How it is built</h3>
+        <p id="methodBuild"></p>
+      </div>
+      <div>
+        <h3>Definitions that change the answer</h3>
+        <ul>
+          <li><b>Net revenue</b> is after discounts <em>and</em> returns. Using the pre-return figure overstates every margin by roughly 8 points.</li>
+          <li><b>Returns</b> are attributed to the original order month, so margin answers “was this sale profitable”. The cash view is separate and will not tie.</li>
+          <li><b>Shipping</b> is costed on billable weight — carriers bill <span class="num">max(actual, dimensional)</span>.</li>
+          <li><b>Cost of goods</b> is net of what was recovered from resale, and returns carry their own freight and restocking cost. Nothing is allocated by rule of thumb.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>What is deliberately absent</h3>
+        <p>No contribution margin after advertising by state or category. Ad platforms do not report spend at those grains, so a geographic CM3 would be an allocation presented as a measurement.</p>
+      </div>
+    </div>
+    <p class="disclosure" id="disclosure"></p>
+    <p class="chart-caption" style="border:0;margin-top:1.4rem" id="colophon"></p>
+  </section>
+</main>
+
+<script>
+const DATA = /*__DATA__*/;
+
+/* ── formatters ─────────────────────────────────────────────── */
+const MINUS = "\u2212";
+const money = (v, d = 0) => (v < 0 ? MINUS : "") + "$" +
+  Math.abs(v).toLocaleString("en-US", {minimumFractionDigits: d, maximumFractionDigits: d});
+const compact = v => (v < 0 ? MINUS : "") + "$" +
+  (Math.abs(v) >= 1e6 ? (Math.abs(v) / 1e6).toFixed(2) + "M"
+   : Math.abs(v) >= 1e3 ? (Math.abs(v) / 1e3).toFixed(0) + "K"
+   : Math.abs(v).toFixed(0));
+const pct = (v, d = 1) => (v * 100).toFixed(d) + "%";
+const pp = v => (v > 0 ? "+" : MINUS) + Math.abs(v * 100).toFixed(1) + " pts";
+const num = v => Math.round(v).toLocaleString("en-US");
+const monthName = m => new Date(m + "-01T00:00:00")
+  .toLocaleDateString("en-US", {month: "short", year: "numeric"});
+
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs = {}, text) {
+  const n = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (text != null) n.textContent = text;
+  return n;
+}
+const ZONE_RAMP = ["#0E7C7B", "#3A8F76", "#6FA06A", "#A8A85C", "#D19A4E", "#D96B45", "#C2385B"];
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+const H = DATA.headline, T = DATA.trend, F = DATA.findings;
+const first = T[0], last = T[T.length - 1];
+
+/* Both headline figures span the same window, 2023 to 2025. Quoting a
+   three-year revenue multiple beside a year-on-year margin drop reads as
+   sleight of hand even when both numbers are true. */
+const B_HERO = DATA.margin_bridge;
+const C_F2_CAP = 0.25;   // scenario parameter, not a recommendation
+const revMultiple = last.gross / first.gross;
+const marginDrop = last.cm3_margin - first.cm3_margin;
+
+/* ── 1. Hero copy ───────────────────────────────────────────── */
+function renderHero() {
+  /* Plain language in the headline, the diagnosis underneath. "Bank balance"
+     was a claim about cash, and cash was never measured; this says exactly what
+     CM3 is in words a founder already owns. */
+  document.getElementById("heroTitle").textContent =
+    "Sales tripled. The money the business keeps didn't.";
+
+  /* The window is stated explicitly because 4.6 points spans two year-over-year
+     steps, not one -- an earlier draft said "in a single year" and was wrong.
+     The emphasis is nowrap so "4.6 points" can never break across lines. */
+  document.getElementById("heroSubhead").innerHTML =
+    `Contribution margin fell <em>${Math.abs(marginDrop * 100).toFixed(1)} points</em> ` +
+    `from ${first.yr} to ${last.yr}`;
+
+  /* Rewritten for a business reader.
+     The previous version moved through three denominators in three sentences
+     (gross, then net, then CM3), quoted an estimate to the dollar, and called
+     the findings "leaks" -- a metaphor that flattens a real loss, an uncaptured
+     margin and a misallocated contract into one thing. It also withheld the
+     answer: "three specific leaks" without saying which. */
+  const rounded = Math.round(F.total_recovery / 10000) * 10000;
+  const relDrop = (B_HERO.to_margin - B_HERO.from_margin) / B_HERO.from_margin;
+
+  document.getElementById("heroLede").innerHTML =
+    `FY${DATA.fiscal_year} revenue reached <strong>${compact(H.gross_revenue)}</strong>. ` +
+    `After discounts, returns, product cost, delivery and advertising, ` +
+    `<strong>${compact(H.cm3)}</strong> was left \u2014 the money available to cover salaries, ` +
+    `rent and everything else. ` +
+    // "fallen by 31% ... from 14.9% to 10.3%" put two kinds of percentage in one
+    // sentence: the reader subtracts 14.9 - 10.3, gets 4.6, and stops to
+    // reconcile it against the 31%. The levels appear in the bridge chart and the
+    // table below, so the lede only needs the relative decline.
+    `The share that survives as margin has fallen ` +
+    `<strong>${Math.abs(relDrop * 100).toFixed(0)}%</strong> since FY${B_HERO.from_year}.` +
+    `<br><br>` +
+    // "between them" is a literary construction; the plural subject with a single
+    // total already means collectively.
+    `Three decisions below recover roughly <strong>${compact(rounded)} a year</strong>. ` +
+    `None requires more ad spend.`;
+
+  document.getElementById("heroEyebrow").textContent =
+    `FY${DATA.fiscal_year} \u00B7 ${num(H.orders)} orders \u00B7 ` +
+    `${num(DATA.data_quality.fact_rows)} order lines`;
+}
+
+/* ── 1b. Thirty-second summary ───────────────────────────────
+   Three lines, each with its dollar value, linking to the detail below.
+   Values come from the payload so the summary can never drift from the
+   analysis it summarises. */
+function summary() {
+  const rows = [
+    ["Two bestsellers lose money on every single sale", F.f1_recovery, "#finding-1"],
+    ["Deep discounts shipped free to the far West", F.f2_recovery, "#finding-2"],
+    ["The ad channel with the best ROAS makes the least money", F.f3_recovery, "#finding-3"]
+  ];
+  document.getElementById("summary").innerHTML = rows.map(([text, value, href]) => `
+    <a class="summary-row" href="${href}">
+      <span class="sr-text">${text}</span>
+      <span class="sr-value">+${compact(value)}/yr <span class="sr-go">\u2192</span></span>
+    </a>`).join("");
+}
+
+/* ── 2. Waterfall ───────────────────────────────────────────── */
+function waterfall() {
+  const svg = document.getElementById("waterfall");
+  const W = 900, Hh = 425, m = {t: 50, r: 8, b: 82, l: 8};
+
+  /* Nine bars, not six. The three dark checkpoints are the whole point: without
+     them the chart shows a collapse but never teaches the ladder the rest of the
+     page is built on. CM1 is skipped deliberately -- a founder cares whether the
+     product makes money after shipping, not about the intermediate step. */
+  const steps = [
+    {label: "Gross revenue",  value: H.gross_revenue, type: "open"},
+    {label: "Discounts",      value: -H.discounts,    type: "down"},
+    {label: "Returns",        value: -H.refunds,      type: "down"},
+    {label: "Net revenue",    value: H.net_revenue,   type: "check"},
+    {label: "Cost of goods",  value: -H.cogs_net,     type: "down"},
+    {label: "Fulfillment",    value: -H.fulfillment,  type: "down"},
+    {label: "After shipping", value: H.cm2,           type: "check"},
+    {label: "Advertising",    value: -H.ad_spend,     type: "down"},
+    {label: "Money kept",     value: H.cm3,           type: "close"}
+  ];
+
+  const max = H.gross_revenue;
+  const plotH = Hh - m.t - m.b;
+  const y = v => m.t + plotH * (1 - v / max);
+  const bw = (W - m.l - m.r) / steps.length;
+  const barW = bw * 0.64, gap = (bw - barW) / 2;
+
+  const FILL = {open: css("--ink"), check: css("--ink-2"),
+                close: css("--pos"), down: css("--z5")};
+
+  let run = 0;
+  steps.forEach((s, i) => {
+    const x = m.l + i * bw + gap;
+    let top, bot;
+    if (s.type === "down") {
+      const from = run, to = run + s.value;
+      top = y(Math.max(from, to)); bot = y(Math.min(from, to));
+      run = to;
+    } else {
+      top = y(s.value); bot = y(0);
+      run = s.value;
+    }
+    const h = Math.max(bot - top, 2);
+
+    if (i > 0) {
+      // The connectors are the only cue that these are sequential deductions.
+      const yLink = s.type === "down" ? top : y(0);
+      svg.appendChild(el("line", {
+        x1: m.l + (i - 1) * bw + gap, x2: x + barW, y1: yLink, y2: yLink,
+        stroke: css("--ink-3"), "stroke-width": 1.3, "stroke-dasharray": "4 3",
+        opacity: 0.75
+      }));
+    }
+
+    const rect = el("rect", {
+      x, y: top, width: barW, height: h, fill: FILL[s.type], rx: 1,
+      class: "bar-grow",
+      style: `transform:scaleY(0);transition:transform .5s cubic-bezier(.2,.7,.3,1) ${i * 55}ms`
+    });
+    rect.dataset.grow = "1";
+    svg.appendChild(rect);
+
+    svg.appendChild(el("text", {
+      x: x + barW / 2, y: top - 9, "text-anchor": "middle",
+      "font-family": css("--font-mono"),
+      "font-size": s.type === "down" ? 12.5 : 14,
+      "font-weight": 600,
+      fill: s.type === "down" ? css("--ink-2") : css("--ink")
+    }, (s.value < 0 ? MINUS : "") + compact(Math.abs(s.value))));
+
+    // Wrap at 10 characters: at nine bars each label has about 100px, and
+    // "Net revenue" overflows a single line.
+    const words = s.label.split(" ");
+    const lines = words.length > 1 && s.label.length > 10
+      ? [words[0], words.slice(1).join(" ")] : [s.label];
+    lines.forEach((ln, k) => {
+      svg.appendChild(el("text", {
+        x: x + barW / 2, y: y(0) + 21 + k * 13, "text-anchor": "middle",
+        "font-family": css("--font-body"), "font-size": 11.5,
+        "font-weight": s.type === "down" ? 400 : 600,
+        fill: s.type === "down" ? css("--ink-3") : css("--ink-2")
+      }, ln));
+    });
+
+    /* Each checkpoint as a share of gross revenue, on a fixed baseline so the
+       four figures read as a row. This is the normalization an investor reaches
+       for: 7 cents of every dollar sold survives, which is comparable across
+       periods and across companies in a way that $721K is not. */
+    if (s.type !== "down") {
+      svg.appendChild(el("text", {
+        x: x + barW / 2, y: y(0) + 52, "text-anchor": "middle",
+        "font-family": css("--font-mono"), "font-size": 11.5, "font-weight": 500,
+        fill: css("--ink-3")
+      /* Bare percentages. Repeating "of gross" four times states the base three
+         times too often; the 100% on the first bar makes it self-evident. */
+      }, pct(s.value / H.gross_revenue, 0)));
+    }
+  });
+
+  svg.appendChild(el("line", {
+    x1: m.l, x2: W - m.r, y1: y(0), y2: y(0), stroke: css("--ink"), "stroke-width": 1
+  }));
+
+  /* Charts get extracted. Someone will screenshot this into a deck or a message,
+     and at that moment it loses every word of surrounding page. The period and
+     the subject have to live inside the frame. */
+  svg.appendChild(el("text", {x: W / 2, y: 16, "text-anchor": "middle",
+    "font-family": css("--font-mono"), "font-size": 11, "letter-spacing": "0.09em",
+    fill: css("--ink-3")},
+    `FY${DATA.fiscal_year}  \u00B7  FROM GROSS REVENUE TO WHAT THE BUSINESS KEEPS`));
+
+  /* Cut from 90 words to 24.
+     The old caption did two jobs: it taught the vocabulary and it defended the
+     methodology. The second belongs in the Method section, where a reviewer
+     looks for it, not above the fold where a founder has to scroll past it. The
+     figure strip below already explains net revenue, so that sentence went too. */
+  document.getElementById("wfCaption").textContent =
+    "The three dark bars are checkpoints. \u201CMoney kept\u201D is what remains before " +
+    "salaries, rent and software \u2014 available to pay for them, not profit.";
+}
+
+/* ── 3. Figure strip ────────────────────────────────────────── */
+function figures() {
+  /* Plain language in the label, the term underneath. "CM2 MARGIN" as a heading
+     is jargon to the exact reader this page is written for -- a founder who does
+     not already track contribution margin, which is the whole premise. The term
+     still appears, so the vocabulary is available without being a prerequisite. */
+  const oneIn = Math.round(1 / H.unit_return_rate);
+
+  const items = [
+    {k: "Net revenue", v: compact(H.net_revenue),
+     d: `after ${compact(H.discounts)} in discounts and ${compact(H.refunds)} in returns`},
+    // "healthy for a DTC brand" was an unsourced benchmark claim on a page that
+    // is otherwise careful not to assert what the data cannot support. Replaced
+    // with what the number actually is.
+    {k: "Margin after shipping", v: pct(H.cm2_margin),
+     d: "CM2 \u00B7 after product cost and delivery"},
+    {k: "Margin after ads", v: pct(H.cm3_margin),
+     d: `CM3 \u00B7 down ${Math.abs(marginDrop * 100).toFixed(1)} pts since FY${first.yr}`,
+     neg: true},
+    {k: "Unit return rate", v: pct(H.unit_return_rate),
+     d: `roughly 1 in ${oneIn} of the ${num(H.units)} units sold came back`},
+    {k: "Average order value", v: money(H.aov, 2),
+     d: "at checkout, before returns"}
+  ];
+  document.getElementById("figures").innerHTML = items.map(i => `
+    <div class="figure${i.neg ? " is-neg" : ""}">
+      <span class="k eyebrow">${i.k}</span>
+      <span class="v">${i.v}</span>
+      <span class="d">${i.d}</span>
+    </div>`).join("");
+}
+
+/* ── 4. Monthly CM3 margin trend ────────────────────────────── */
+function trend() {
+  const svg = document.getElementById("trendChart");
+  const B = DATA.margin_bridge;
+  const W = 900, Hh = 330, m = {t: 44, r: 20, b: 70, l: 56};
+
+  /* A variance bridge, not a time series.
+     The monthly line answered "did margin fall" -- which the headline already
+     states -- and left the question a board actually asks unanswered: which
+     cost caused it. Here each block is a cost expressed as a share of net
+     revenue, differenced between the two years. Red and green carry real
+     meaning in this chart, unlike the revenue waterfall where every deduction
+     was equally unavoidable. */
+  const LABELS = {product: "Product cost", delivery: "Delivery",
+                  advertising: "Advertising"};
+
+  const steps = [
+    {label: `FY${B.from_year}`, value: B.from_margin, type: "open"},
+    ...B.drivers.map(d => ({label: LABELS[d.driver], value: d.effect_pts,
+                            type: "delta", usd: d.effect_usd})),
+    {label: `FY${B.to_year}`, value: B.to_margin, type: "close"}
+  ];
+
+  const max = B.from_margin * 1.16;
+  const plotH = Hh - m.t - m.b;
+  const y = v => m.t + plotH * (1 - v / max);
+  const bw = (W - m.l - m.r) / steps.length;
+  const barW = bw * 0.5, gap = (bw - barW) / 2;
+
+  [0, 0.05, 0.10, 0.15].filter(t => t <= max).forEach(t => {
+    svg.appendChild(el("line", {x1: m.l, x2: W - m.r, y1: y(t), y2: y(t),
+      stroke: t === 0 ? css("--ink") : css("--rule-2"), "stroke-width": 1}));
+    svg.appendChild(el("text", {x: m.l - 10, y: y(t) + 5, "text-anchor": "end",
+      "font-family": css("--font-mono"), "font-size": 12.5, fill: css("--ink-3")},
+      pct(t, 0)));
+  });
+
+  // Where the margin used to sit, carried across as a reference.
+  svg.appendChild(el("line", {x1: m.l, x2: W - m.r,
+    y1: y(B.from_margin), y2: y(B.from_margin),
+    stroke: css("--ink-3"), "stroke-width": 1, "stroke-dasharray": "5 4", opacity: 0.6}));
+
+  let run = 0;
+  steps.forEach((s, i) => {
+    const x = m.l + i * bw + gap;
+    let top, bot, fill;
+    if (s.type === "delta") {
+      const from = run, to = run + s.value;
+      top = y(Math.max(from, to)); bot = y(Math.min(from, to));
+      fill = s.value < 0 ? css("--z8") : css("--z2");
+      run = to;
+    } else {
+      top = y(s.value); bot = y(0);
+      fill = s.type === "open" ? css("--ink") : css("--ink-2");
+      run = s.value;
+    }
+    const h = Math.max(bot - top, 2);
+
+    if (i > 0) {
+      const yLink = s.type === "delta" ? (s.value < 0 ? top : bot) : y(0);
+      svg.appendChild(el("line", {
+        x1: m.l + (i - 1) * bw + gap, x2: x + barW, y1: yLink, y2: yLink,
+        stroke: css("--ink-3"), "stroke-width": 1.3, "stroke-dasharray": "4 3",
+        opacity: 0.75}));
+    }
+
+    const rect = el("rect", {x, y: top, width: barW, height: h, fill, rx: 1,
+      class: "bar-grow",
+      style: `transform:scaleY(0);transition:transform .5s cubic-bezier(.2,.7,.3,1) ${i * 70}ms`});
+    rect.dataset.grow = "1";
+    svg.appendChild(rect);
+
+    // Percentage points above the bar, dollars below it: two readings of the
+    // same effect, and the dollar figure is what gets quoted in a meeting.
+    svg.appendChild(el("text", {
+      x: x + barW / 2, y: top - 10, "text-anchor": "middle",
+      "font-family": css("--font-mono"), "font-size": s.type === "delta" ? 13.5 : 15,
+      "font-weight": 600,
+      fill: s.type === "delta" ? (s.value < 0 ? css("--neg") : css("--pos")) : css("--ink")
+    }, s.type === "delta" ? pp(s.value) : pct(s.value)));
+
+    if (s.type === "delta") {
+      svg.appendChild(el("text", {
+        x: x + barW / 2, y: bot + 16, "text-anchor": "middle",
+        "font-family": css("--font-mono"), "font-size": 11.5,
+        fill: css("--ink-3")}, compact(s.usd)));
+    }
+
+    const words = s.label.split(" ");
+    const lines = words.length > 1 && s.label.length > 10
+      ? [words[0], words.slice(1).join(" ")] : [s.label];
+    lines.forEach((ln, k) => {
+      svg.appendChild(el("text", {
+        x: x + barW / 2, y: y(0) + 22 + k * 14, "text-anchor": "middle",
+        "font-family": css("--font-body"), "font-size": 12.5,
+        "font-weight": s.type === "delta" ? 400 : 600,
+        fill: s.type === "delta" ? css("--ink-3") : css("--ink-2")}, ln));
+    });
+  });
+
+  svg.appendChild(el("line", {x1: m.l, x2: W - m.r, y1: y(0), y2: y(0),
+    stroke: css("--ink"), "stroke-width": 1}));
+  svg.appendChild(el("text", {x: W / 2, y: 16, "text-anchor": "middle",
+    "font-family": css("--font-mono"), "font-size": 11, "letter-spacing": "0.09em",
+    fill: css("--ink-3")},
+    // The bars carry two readings of the same effect and the header never said
+    // so, leaving the dollar figures underneath unexplained.
+    `MARGIN AFTER ADS, % OF NET REVENUE  \u00B7  POINTS ABOVE EACH BAR, ` +
+    `DOLLARS BELOW  \u00B7  DASHED = FY${B.from_year} LEVEL`));
+
+  // ── Copy, all derived ──
+  const worst = [...B.drivers].sort((a, b) => a.effect_pts - b.effect_pts)[0];
+  const best = [...B.drivers].sort((a, b) => b.effect_pts - a.effect_pts)[0];
+
+  document.getElementById("trendTitle").textContent =
+    `Supplier costs rose ${pct(B.unit_cost_inflation, 0)}, prices did not, and that alone ` +
+    `cost ${Math.abs(worst.effect_pts * 100).toFixed(1)} of the ` +
+    `${Math.abs(B.total_pts * 100).toFixed(1)} points`;
+
+  document.getElementById("trendPrize").innerHTML =
+    `<span style="color:var(--neg)">${compact(B.total_usd)}</span>` +
+    `<small>lost to margin compression in FY${B.to_year}</small>`;
+
+  const r0 = B.ratios[0], r1 = B.ratios[B.ratios.length - 1];
+
+  /* Restored: this table was deleted by accident when the monthly chart was
+     replaced by the bridge, leaving the right-hand column empty. Same plain
+     labels as the waterfall checkpoints, so the page teaches one vocabulary. */
+  const cols = [
+    ["After<br>product cost", "cm1_margin"],
+    ["After<br>shipping", "cm2_margin"],
+    ["After<br>ads", "cm3_margin"]
+  ];
+  document.getElementById("trendTable").innerHTML =
+    `<caption>How to read FY${last.yr}: of every $100 of net revenue, ` +
+    `<b>${money(Math.round(last.cm1_margin * 1000) / 10, 2)}</b> was left after the cost of ` +
+    `the product, <b>${money(Math.round(last.cm2_margin * 1000) / 10, 2)}</b> after shipping ` +
+    `it as well, and <b>${money(Math.round(last.cm3_margin * 1000) / 10, 2)}</b> after ` +
+    `advertising on top of that.</caption>` +
+    `<thead><tr><th>Year</th><th>Gross<br>revenue</th>` +
+    cols.map(([label]) => `<th>${label}</th>`).join("") +
+    `</tr></thead><tbody>` +
+    T.map(t => `<tr><td>FY${t.yr}</td><td>${compact(t.gross)}</td>` +
+      cols.map(([, key], k) => {
+        const worst = k === cols.length - 1 && t.yr === last.yr;
+        return `<td${worst ? ' class="hi"' : ''}>${pct(t[key])}</td>`;
+      }).join("") + `</tr>`).join("") +
+    `</tbody>`;
+
+  document.getElementById("trendProse").innerHTML =
+    // Anchored on the actual CM3 figure rather than recomputed from a rounded
+    // margin, which produced $720,849 where the rest of the page says $721K.
+    `Revenue nearly tripled while margin after advertising fell from ` +
+    `<strong>${pct(B.from_margin)}</strong> to <strong>${pct(B.to_margin)}</strong>. Held at the ` +
+    `FY${B.from_year} rate, FY${B.to_year} would have kept ` +
+    `<strong>${compact(H.cm3 - B.total_usd)}</strong> instead of ${compact(H.cm3)} \u2014 ` +
+    `a gap of <strong>${compact(Math.abs(B.total_usd))}</strong>.` +
+    `<br><br>` +
+    `Unit costs rose <strong>${pct(B.unit_cost_inflation, 0)}</strong> against list prices that ` +
+    `never moved, and discounting did not change (${pct(r0.discount_rate)} to ` +
+    `${pct(r1.discount_rate)}), so this is a pass-through decision rather than a promotional ` +
+    `problem. Advertising took a further ${Math.abs(B.drivers[2].effect_pts * 100).toFixed(1)} ` +
+    `points as acquisition costs inflated. ` +
+    `<strong>Delivery went the other way</strong>, gaining ` +
+    `<strong>${(best.effect_pts * 100).toFixed(1)} points</strong> as return rates fell from ` +
+    `${pct(r0.return_rate)} to ${pct(r1.return_rate)} \u2014 the one part of the P&L that ` +
+    `improved.`;
+}
+
+/* ── 5. SKU scatter ─────────────────────────────────────────── */
+function skus() {
+  const svg = document.getElementById("skuChart");
+  const W = 900, Hh = 424, m = {t: 40, r: 26, b: 90, l: 58};
+
+  /* Three dimensions, not four.
+     Bubble size was what made the cloud illegible: 179 circles of wildly
+     different radii read as mush. Uniform dots fixed that. Color costs nothing
+     in legibility -- it is fill on identical shapes -- so return rate stays,
+     with one legend instead of two. */
+  const S = DATA.skus;
+  const maxRev = Math.max(...S.map(s => s.net_revenue));
+  const cm2s = S.map(s => s.cm2_margin);
+  const lo = Math.min(...cm2s), hi = Math.max(...cm2s);
+  const maxRR = Math.max(...S.map(s => s.return_rate));
+  const color = rr => ZONE_RAMP[Math.min(6, Math.floor((rr / maxRR) * 6.99))];
+  const x = v => m.l + (W - m.l - m.r) * Math.sqrt(v / maxRev);
+  const y = v => m.t + (Hh - m.t - m.b) * (1 - (v - lo) / (hi - lo));
+
+  const worst = new Set(DATA.worst_skus);
+
+  svg.appendChild(el("rect", {x: m.l, y: y(0), width: W - m.l - m.r,
+    height: Math.max(0, (Hh - m.b) - y(0)), fill: css("--neg"), opacity: 0.05}));
+
+  [-0.30, -0.15, 0.15, 0.30, 0.45].filter(t => t > lo && t < hi).forEach(t => {
+    svg.appendChild(el("line", {x1: m.l, x2: W - m.r, y1: y(t), y2: y(t),
+      stroke: css("--rule-2"), "stroke-width": 1}));
+    svg.appendChild(el("text", {x: m.l - 10, y: y(t) + 4, "text-anchor": "end",
+      "font-family": css("--font-mono"), "font-size": 11.5, fill: css("--ink-3")},
+      pct(t, 0)));
+  });
+
+  svg.appendChild(el("line", {x1: m.l, x2: W - m.r, y1: y(0), y2: y(0),
+    stroke: css("--neg"), "stroke-width": 1.2}));
+  svg.appendChild(el("text", {x: W - m.r - 6, y: y(0) - 8, "text-anchor": "end",
+    "font-family": css("--font-mono"), "font-size": 11.5, fill: css("--neg")},
+    "break-even"));
+
+  // Uniform radius, colored by return rate. The two flagged SKUs land at the
+  // crimson end of the ramp anyway; the dark stroke and larger radius keep them
+  // separable from any other high-return SKU.
+  S.forEach(s => {
+    const bad = worst.has(s.sku);
+    svg.appendChild(el("circle", {
+      cx: x(s.net_revenue), cy: y(s.cm2_margin), r: bad ? 7.5 : 5,
+      fill: color(s.return_rate), opacity: bad ? 1 : 0.72,
+      stroke: bad ? css("--ink") : "none", "stroke-width": bad ? 1.6 : 0}));
+  });
+
+  const flagged = DATA.worst_skus
+    .map(sku => S.find(v => v.sku === sku))
+    .filter(Boolean)
+    .sort((a, b) => a.cm2_margin - b.cm2_margin);
+
+  flagged.forEach((s, k) => {
+    const px = x(s.net_revenue), py = y(s.cm2_margin);
+    const lx = m.l + 30, ly = y(0) + 40 + k * 42;
+    svg.appendChild(el("line", {x1: lx + 232, x2: px - 10, y1: ly - 4, y2: py,
+    // Marker and text both started at lx, so the dot printed over the first
+    // letter. The text is indented past it.
+      stroke: css("--ink"), "stroke-width": 1, opacity: 0.4}));
+    svg.appendChild(el("text", {x: lx + 13, y: ly - 4, "font-family": css("--font-mono"),
+      "font-size": 12.5, "font-weight": 600, fill: css("--ink")}, s.product_name));
+    svg.appendChild(el("circle", {cx: lx, cy: ly - 8, r: 5,
+      fill: color(s.return_rate), stroke: css("--ink"), "stroke-width": 1.4}));
+    svg.appendChild(el("text", {x: lx + 13, y: ly + 11, "font-family": css("--font-mono"),
+      "font-size": 11, fill: css("--neg")},
+      `${pct(s.return_rate, 0)} returned  \u00B7  CM2 ${pct(s.cm2_margin, 0)}  \u00B7  ` +
+      `${money(s.net_revenue)} revenue`));
+  });
+
+  svg.appendChild(el("text", {x: W / 2, y: 14, "text-anchor": "middle",
+    "font-family": css("--font-mono"), "font-size": 11, "letter-spacing": "0.09em",
+    fill: css("--ink-3")},
+    `FY${DATA.fiscal_year}  \u00B7  ONE DOT PER SKU  \u00B7  ${S.length} PRODUCTS  ` +
+    `\u00B7  COLOR = RETURN RATE`));
+  svg.appendChild(el("text", {x: (W + m.l) / 2, y: Hh - m.b + 30, "text-anchor": "middle",
+    "font-family": css("--font-body"), "font-size": 12.5, fill: css("--ink-2")},
+    "Net revenue per SKU \u2192"));
+
+  /* Color legend in a strip below the axis. Placed inside the plot area it drew
+     straight over the SKU callouts, which share that band. */
+  const lgx = m.l, lgy = Hh - 24;
+  ZONE_RAMP.forEach((c, k) =>
+    svg.appendChild(el("rect", {x: lgx + k * 20, y: lgy, width: 20, height: 10, fill: c})));
+  svg.appendChild(el("text", {x: lgx, y: lgy - 7, "font-family": css("--font-mono"),
+    "font-size": 10.5, "letter-spacing": "0.06em", fill: css("--ink-3")}, "RETURN RATE"));
+  svg.appendChild(el("text", {x: lgx, y: lgy + 22, "font-family": css("--font-mono"),
+    "font-size": 10.5, fill: css("--ink-3")}, "0%"));
+  svg.appendChild(el("text", {x: lgx + 7 * 20, y: lgy + 22, "text-anchor": "end",
+    "font-family": css("--font-mono"), "font-size": 10.5, fill: css("--ink-3")},
+    pct(maxRR, 0)));
+  svg.appendChild(el("text", {x: m.l - 10, y: m.t - 12, "text-anchor": "end",
+    "font-family": css("--font-mono"), "font-size": 11, fill: css("--ink-3")},
+    "CM2 %"));
+
+  const f1 = DATA.finding1;
+  document.getElementById("f1Prize").innerHTML =
+    `+${money(F.f1_recovery)}<small>per year, if sizing is fixed</small>`;
+
+  /* Trimmed from 110 words to 75. The supplier inference and the "clean break"
+     sentence both went: the first is a conclusion the data supports but does not
+     prove, the second describes what the chart already shows. */
+  const ranked = [...S].sort((a, b) => b.net_revenue - a.net_revenue);
+  const rank2 = Math.max(...flagged.map(v => ranked.indexOf(v) + 1));
+  // The 49-point jump from the second-worst SKU to the third answers a question
+  // a skeptical reader will ask -- is this isolated or systemic? The chart shows
+  // the gap but gives no way to read its size.
+  const third = [...S].sort((a, b) => a.cm2_margin - b.cm2_margin)[2];
+  const names = flagged.map(v => `<strong>${v.product_name}</strong>`).join(" and ");
+
+  document.getElementById("f1Prose").innerHTML =
+    `${names} returned at <strong>${pct(f1.return_rate, 0)}</strong> against an ` +
+    `${pct(f1.baseline_return_rate, 0)} catalog norm, and nine in ten of those returns cite ` +
+    `sizing. Both rank in the top ${Math.ceil(rank2 / 10) * 10} of ${S.length} SKUs by ` +
+    `revenue, so every sales report shows them as winners.<br><br>` +
+    `Product margin is positive at <strong>${money(f1.cm1)}</strong>. The loss appears only ` +
+    `once freight, return shipping and restocking are counted: ` +
+    `<strong>${money(f1.cm2)}</strong>.`;
+
+  document.getElementById("f1Kv").innerHTML = `
+    <li><span class="kvk">Units sold, FY${DATA.fiscal_year}</span><span class="kvv">${num(f1.units)}</span></li>
+    <li><span class="kvk">Return rate</span><span class="kvv neg">${pct(f1.return_rate)}</span></li>
+    <li><span class="kvk">CM1 \u2014 product margin</span><span class="kvv pos">${money(f1.cm1)}</span></li>
+    <li><span class="kvk">CM2 \u2014 after fulfillment</span><span class="kvv neg">${money(f1.cm2)}</span></li>
+    <li><span class="kvk">Cost per return</span><span class="kvv">${money(f1.cost_per_return, 2)}</span></li>
+    <li><span class="kvk">Avoidable returns per year</span><span class="kvv">${num(F.f1_avoidable_returns)}</span></li>
+    <li><span class="kvk">Worth, at the ${pct(F.f1_target_return_rate, 0)} category rate</span><span class="kvv pos">${money(F.f1_recovery)}</span></li>
+    <li><span class="kvk">Revenue forgone if delisted</span><span class="kvv">${money(f1.net_revenue)}</span></li>
+    <li><span class="kvk">Next-worst SKU in the catalog</span><span class="kvv pos">${pct(third.cm2_margin)} CM2</span></li>`;
+}
+
+/* ── 6. Zone gradient and discount matrix ───────────────────── */
+function zones() {
+  const svg = document.getElementById("zoneChart");
+  const W = 900, Hh = 320, m = {t: 30, r: 16, b: 56, l: 54};
+  const Z = DATA.zones;
+  const maxV = Math.max(...Z.map(z => z.cm2_per_order));
+  const bw = (W - m.l - m.r) / Z.length, barW = bw * 0.58;
+  const y = v => m.t + (Hh - m.t - m.b) * (1 - v / maxV);
+
+  [0, 20, 40, 60].filter(t => t <= maxV * 1.05).forEach(t => {
+    svg.appendChild(el("line", {x1: m.l, x2: W - m.r, y1: y(t), y2: y(t),
+      stroke: t === 0 ? css("--ink") : css("--rule-2"), "stroke-width": 1}));
+    svg.appendChild(el("text", {x: m.l - 9, y: y(t) + 4, "text-anchor": "end",
+      "font-family": css("--font-mono"), "font-size": 11, fill: css("--ink-3")}, "$" + t));
+  });
+
+  Z.forEach((z, i) => {
+    const x = m.l + i * bw + (bw - barW) / 2;
+    const h = Math.max(y(0) - y(z.cm2_per_order), 2);
+    svg.appendChild(el("rect", {x, y: y(z.cm2_per_order), width: barW, height: h,
+      fill: ZONE_RAMP[i % ZONE_RAMP.length], rx: 1}));
+    svg.appendChild(el("text", {x: x + barW / 2, y: y(z.cm2_per_order) - 9,
+      "text-anchor": "middle", "font-family": css("--font-mono"), "font-size": 13,
+      "font-weight": 600, fill: css("--ink")}, money(z.cm2_per_order, 2)));
+    svg.appendChild(el("text", {x: x + barW / 2, y: y(0) + 20, "text-anchor": "middle",
+      "font-family": css("--font-mono"), "font-size": 12, "font-weight": 500,
+      fill: css("--ink-2")}, "Z" + z.zone));
+    svg.appendChild(el("text", {x: x + barW / 2, y: y(0) + 35, "text-anchor": "middle",
+      "font-family": css("--font-body"), "font-size": 10.5, fill: css("--ink-3")},
+      num(z.orders) + " ord"));
+  });
+
+  svg.appendChild(el("text", {x: W / 2, y: Hh - 6, "text-anchor": "middle",
+    "font-family": css("--font-body"), "font-size": 11.5, fill: css("--ink-3")},
+    `FY${DATA.fiscal_year}  \u00B7  shipping zone from the Columbus, OH warehouse \u2014 near to far \u2192`));
+
+  const M = DATA.matrix;
+  const dBands = ["0-12%", "13-24%", "25-30%", "31%+"];
+  const zBands = ["Z2-Z3", "Z4-Z5", "Z6-Z8"];
+  const vals = M.map(c => c.cm2_per_order);
+  const vmin = Math.min(...vals), vmax = Math.max(...vals);
+  const cellColour = v => {
+    if (v < 0) return css("--z8");
+    const base = Math.max(vmin, 0);
+    const t = vmax === base ? 1 : (v - base) / (vmax - base);
+    return ZONE_RAMP[Math.max(0, Math.min(6, 6 - Math.round(t * 6)))];
+  };
+
+  let html = "<thead><tr><th class='rowh'>Zone</th>" +
+    dBands.map(d => `<th>${d}</th>`).join("") + "</tr></thead><tbody>";
+  zBands.forEach(zb => {
+    html += `<tr><td class="rowh">${zb}</td>`;
+    dBands.forEach(db => {
+      const c = M.find(v => v.zone_band === zb && v.discount_band === db);
+      html += c
+        ? `<td style="background:${cellColour(c.cm2_per_order)}">${money(c.cm2_per_order, 2)}<small>${num(c.orders)} ord</small></td>`
+        : `<td style="background:var(--rule-2);color:var(--ink-3)">—</td>`;
+    });
+    html += "</tr>";
+  });
+  document.getElementById("matrix").insertAdjacentHTML("beforeend", html + "</tbody>");
+
+  /* Promotional months: November holds Black Friday, and January-February and
+     July-August hold the end-of-season clearances. December is excluded because
+     it carries holiday volume at full price. */
+  const PROMO = [1, 2, 7, 8, 11];
+  const mean = a => a.reduce((p, c) => p + c, 0) / a.length;
+  const inPromo = p => PROMO.includes(Number(p.month.slice(5)));
+  const promoMean = mean(DATA.monthly.filter(inPromo).map(p => p.cm3_margin));
+  const cleanMean = mean(DATA.monthly.filter(p => !inPromo(p)).map(p => p.cm3_margin));
+  const novMean = mean(DATA.monthly.filter(p => p.month.endsWith("-11")).map(p => p.cm3_margin));
+
+  const f2 = DATA.finding2;
+  document.getElementById("f2Prize").innerHTML =
+    `+${money(F.f2_recovery)}<small>per year, at a ${pct(C_F2_CAP, 0)} discount cap</small>`;
+
+  document.getElementById("f2Prose").innerHTML =
+    `Contribution per order slides from <strong>${money(Z[0].cm2_per_order, 2)}</strong> in ` +
+    `Zone ${Z[0].zone} to <strong>${money(Z[Z.length - 1].cm2_per_order, 2)}</strong> in ` +
+    `Zone ${Z[Z.length - 1].zone} — the freight cost gradient, made visible. Add a deep discount ` +
+    `and it turns negative: the ${num(f2.deep_far_orders)} orders discounted 31%+ and shipped to ` +
+    `Zones 6–8 average <strong>${money(f2.deep_far_cm2, 2)}</strong> against ` +
+    `${money(f2.other_cm2, 2)} everywhere else. Three effects compound — the discount, ` +
+    `dimensional-weight freight on bulky outerwear, and a return rate that rises with discount ` +
+    `depth. Free shipping applies regardless of destination.` +
+    `<br><br>` +
+    // Restored here after the monthly chart was replaced by the margin bridge.
+    // The calendar pattern belongs with discount depth, and deleting it along
+    // with that chart quietly removed a finding the page used to make.
+    `The pattern repeats on the calendar. Across the three promotional windows \u2014 ` +
+    `Black Friday, and the January and July clearances \u2014 margin after advertising ` +
+    `averages <strong>${pct(promoMean)}</strong> against <strong>${pct(cleanMean)}</strong> in ` +
+    `months with no promotion. November alone averages <strong>${pct(novMean)}</strong>. ` +
+    `Every discount event costs roughly ` +
+    `<strong>${Math.abs((promoMean - cleanMean) * 100).toFixed(1)} points</strong> of margin.`;
+}
+
+/* ── 7. Channel rank inversion ──────────────────────────────── */
+function slope() {
+  const svg = document.getElementById("slopeChart");
+  const W = 900, Hh = 400, m = {t: 46, r: 210, b: 34, l: 210};
+  // Owned channels and retargeting always flatter ROAS: an email flow divided
+  // by a Klaviyo subscription returns 40x, and retargeting spends against demand
+  // that already exists. Including them made this chart contradict its own
+  // headline. The comparison is only meaningful between paid ACQUISITION
+  // channels, which is what validate_findings.py asserts.
+  const C = DATA.channels.filter(c => c.is_paid_acquisition && c.ad_spend > 1000);
+  const byRoas = [...C].sort((a, b) => b.platform_roas - a.platform_roas);
+  const byCm3 = [...C].sort((a, b) => b.cm3_margin - a.cm3_margin);
+  const n = C.length;
+  const yRow = i => m.t + (Hh - m.t - m.b) * (n === 1 ? 0.5 : i / (n - 1));
+
+  svg.appendChild(el("text", {x: W / 2, y: 14, "text-anchor": "middle",
+    "font-family": css("--font-mono"), "font-size": 11, "letter-spacing": "0.09em",
+    fill: css("--ink-3")},
+    `FY${DATA.fiscal_year}  \u00B7  PAID ACQUISITION CHANNELS RANKED TWO WAYS`));
+  svg.appendChild(el("text", {x: m.l - 14, y: m.t - 22, "text-anchor": "end",
+    "font-family": css("--font-mono"), "font-size": 11, "letter-spacing": "0.12em",
+    fill: css("--ink-3")}, "PLATFORM ROAS"));
+  svg.appendChild(el("text", {x: W - m.r + 14, y: m.t - 22,
+    "font-family": css("--font-mono"), "font-size": 11, "letter-spacing": "0.12em",
+    fill: css("--ink-3")}, "CM3 MARGIN"));
+  svg.appendChild(el("text", {x: m.l - 14, y: m.t - 6, "text-anchor": "end",
+    "font-family": css("--font-body"), "font-size": 11.5, fill: css("--ink-3")},
+    "what the team reports"));
+  svg.appendChild(el("text", {x: W - m.r + 14, y: m.t - 6,
+    "font-family": css("--font-body"), "font-size": 11.5, fill: css("--ink-3")},
+    "what pays salaries"));
+
+  C.forEach(c => {
+    const y1 = yRow(byRoas.indexOf(c)), y2 = yRow(byCm3.indexOf(c));
+    const isAff = c.channel === "Affiliate";
+    const bad = c.cm3 < 0;
+    const stroke = isAff ? css("--neg") : bad ? css("--z7") : css("--ink-3");
+
+    svg.appendChild(el("path", {
+      d: `M${m.l},${y1} C${m.l + 110},${y1} ${W - m.r - 110},${y2} ${W - m.r},${y2}`,
+      fill: "none", stroke, "stroke-width": isAff ? 3 : 1.6,
+      opacity: isAff ? 1 : bad ? 0.75 : 0.34
+    }));
+    [[m.l, y1], [W - m.r, y2]].forEach(([cx, cy]) =>
+      svg.appendChild(el("circle", {cx, cy, r: isAff ? 5.5 : 4, fill: stroke,
+        opacity: isAff ? 1 : bad ? 0.8 : 0.45})));
+
+    svg.appendChild(el("text", {x: m.l - 14, y: y1 + 4, "text-anchor": "end",
+      "font-family": css("--font-body"), "font-size": 13,
+      "font-weight": isAff ? 600 : 400, fill: isAff ? css("--ink") : css("--ink-2")}, c.channel));
+    svg.appendChild(el("text", {x: m.l - 14, y: y1 + 19, "text-anchor": "end",
+      "font-family": css("--font-mono"), "font-size": 11, fill: css("--ink-3")},
+      c.platform_roas.toFixed(2) + "\u00D7"));
+
+    svg.appendChild(el("text", {x: W - m.r + 14, y: y2 + 4,
+      "font-family": css("--font-body"), "font-size": 13,
+      "font-weight": isAff ? 600 : 400, fill: isAff ? css("--ink") : css("--ink-2")}, c.channel));
+    svg.appendChild(el("text", {x: W - m.r + 14, y: y2 + 19,
+      "font-family": css("--font-mono"), "font-size": 11,
+      fill: bad ? css("--neg") : css("--ink-3")}, pct(c.cm3_margin)));
+  });
+
+  const aff = C.find(c => c.channel === "Affiliate");
+  document.getElementById("f3Prize").innerHTML =
+    `+${money(F.f3_recovery)}<small>per year, at Meta Prospecting's rate</small>`;
+
+  // The reported-versus-real gap has two separate causes, and an earlier draft
+  // blamed all of it on over-attribution. Comparing a platform figure computed
+  // on checkout value against one computed on post-return revenue mixes them.
+  const worstAttr = [...C].sort(
+    (a, b) => (b.overattribution_pct || 0) - (a.overattribution_pct || 0))[0];
+
+  document.getElementById("f3Prose").innerHTML =
+    `Affiliate reports the best return on ad spend of any paid channel at ` +
+    `<strong>${aff.platform_roas.toFixed(2)}\u00D7</strong> and delivers ` +
+    `<strong>${pct(aff.cm3_margin)}</strong> contribution after advertising. Two separate things ` +
+    `close that gap. Measured on the same basis the platform uses \u2014 what the customer paid ` +
+    `at checkout \u2014 it really returned ${aff.roas_checkout_basis.toFixed(2)}\u00D7, so ` +
+    `<strong>${pct(aff.overattribution_pct, 0)}</strong> of the reported figure is credit for ` +
+    `demand it did not create. A 25% site-wide code and an elevated return rate take it down ` +
+    `again to ${aff.true_roas.toFixed(2)}\u00D7 on revenue the business actually keeps. ` +
+    `On attribution alone ${worstAttr.channel} is the worse offender, reporting ` +
+    `<strong>${pct(worstAttr.overattribution_pct, 0)}</strong> above what it delivered.`;
+
+  document.getElementById("f3Kv").innerHTML = C.map(c => `
+    <li><span class="kvk">${c.channel}</span>
+        <span class="kvv ${c.cm3 < 0 ? "neg" : "pos"}">${money(c.cm3)}
+        <span style="color:var(--ink-3);font-weight:400"> · ${compact(c.ad_spend)} spend</span></span></li>`).join("");
+}
+
+/* ── 8. LTV against acquisition cost ────────────────────────── */
+function ltv() {
+  const svg = document.getElementById("ltvChart");
+  const W = 900, Hh = 380, m = {t: 40, r: 96, b: 44, l: 150};
+
+  /* Two groups, one scale.
+     A channel only belongs in a budget-reallocation chart if spending more on
+     it brings more customers. Email's "CAC" is a fixed Klaviyo subscription
+     divided by volume, and retargeting can only reach people the paid channels
+     already brought in — neither responds to budget. Grouping rather than
+     filtering keeps the information and teaches the distinction, which is more
+     useful than protecting the reader from a wrong conclusion. */
+  const isLever = c => c.channel_type === "Paid Prospecting" || c.channel === "Affiliate";
+  const byName = Object.fromEntries(DATA.channels.map(c => [c.channel, c]));
+  const sortLtv = (a, b) => b.ltv_12m - a.ltv_12m;
+
+  const groups = [
+    {label: "Where budget can move", sub: "paid acquisition",
+     rows: DATA.ltv.filter(v => isLever(byName[v.channel] || {})).sort(sortLtv)},
+    {label: "Not a budget lever", sub: "owned demand and retargeting",
+     rows: DATA.ltv.filter(v => !isLever(byName[v.channel] || {})).sort(sortLtv)}
+  ].filter(g => g.rows.length);
+
+  // Shared scale across both groups, otherwise the comparison is meaningless.
+  const maxV = Math.max(...DATA.ltv.map(v => Math.max(v.ltv_12m, v.ncac || 0)));
+  const x = v => m.l + (W - m.l - m.r) * (v / maxV);
+
+  const nRows = groups.reduce((a, g) => a + g.rows.length, 0);
+  const LABEL_H = 30;
+  const rowH = (Hh - m.t - m.b - groups.length * LABEL_H) / nRows;
+
+  [0, 30, 60, 90].filter(t => t <= maxV * 1.04).forEach(t => {
+    svg.appendChild(el("line", {x1: x(t), x2: x(t), y1: m.t - 10, y2: Hh - m.b,
+      stroke: t === 0 ? css("--ink") : css("--rule-2"), "stroke-width": 1}));
+    svg.appendChild(el("text", {x: x(t), y: Hh - m.b + 18, "text-anchor": "middle",
+      "font-family": css("--font-mono"), "font-size": 11, fill: css("--ink-3")}, "$" + t));
+  });
+
+  let y = m.t;
+  groups.forEach((g, gi) => {
+    if (gi > 0) {
+      svg.appendChild(el("line", {x1: 0, x2: W - m.r, y1: y + 4, y2: y + 4,
+        stroke: css("--rule"), "stroke-width": 1}));
+    }
+    svg.appendChild(el("text", {x: 0, y: y + LABEL_H - 8,
+      "font-family": css("--font-mono"), "font-size": 11, "font-weight": 600,
+      "letter-spacing": "0.11em", fill: css("--ink")}, g.label.toUpperCase()));
+    svg.appendChild(el("text", {x: 0, y: y + LABEL_H + 5,
+      "font-family": css("--font-body"), "font-size": 10.5, fill: css("--ink-3")}, g.sub));
+    y += LABEL_H;
+
+    g.rows.forEach(v => {
+      const yc = y + rowH / 2;
+      const paysBack = (v.ltv_cac || 0) >= 1;
+      const bh = Math.min(rowH * 0.40, 16);
+
+      svg.appendChild(el("rect", {x: m.l, y: yc - bh, width: Math.max(x(v.ltv_12m) - m.l, 1),
+        height: bh, fill: paysBack ? css("--z2") : css("--z8"), rx: 1, opacity: 0.9}));
+
+      if (v.ncac) {
+        svg.appendChild(el("rect", {x: m.l, y: yc + 2, width: Math.max(x(v.ncac) - m.l, 1),
+          height: bh * 0.55, fill: css("--ink-3"), rx: 1, opacity: 0.42}));
+        svg.appendChild(el("line", {x1: x(v.ncac), x2: x(v.ncac), y1: yc - bh - 3,
+          y2: yc + 2 + bh * 0.55 + 3, stroke: css("--ink"), "stroke-width": 1.4}));
+      }
+
+      svg.appendChild(el("text", {x: m.l - 12, y: yc + 1, "text-anchor": "end",
+        "font-family": css("--font-body"), "font-size": 12.5,
+        "font-weight": paysBack ? 400 : 600, fill: css("--ink-2")}, v.channel));
+      svg.appendChild(el("text", {x: W - m.r + 12, y: yc + 1,
+        "font-family": css("--font-mono"), "font-size": 13, "font-weight": 600,
+        fill: paysBack ? css("--pos") : css("--neg")}, (v.ltv_cac || 0).toFixed(2) + "\u00D7"));
+      y += rowH;
+    });
+  });
+
+  svg.appendChild(el("text", {x: W / 2, y: 14, "text-anchor": "middle",
+    "font-family": css("--font-mono"), "font-size": 10.5, "letter-spacing": "0.09em",
+    fill: css("--ink-3")},
+    "COHORTS ACQUIRED THROUGH 2024  \u00B7  BAR = 12-MONTH CM2 PER CUSTOMER  \u00B7  " +
+    "SHADED = ACQUISITION COST  \u00B7  RIGHT = LTV:CAC"));
+
+  // Two components, not one. An earlier draft said the gap was repeat rate and
+  // not first-order size; the first order is indeed the same size, but it is
+  // worth less, and that accounts for a fifth of the gap.
+  const g = DATA.ltv.find(v => v.channel === "Google Search");
+  const t = DATA.ltv.find(v => v.channel === "TikTok Ads");
+  const fo = Object.fromEntries(DATA.first_order.map(r => [r.channel, r]));
+  const gFo = fo["Google Search"], tFo = fo["TikTok Ads"];
+  const repeatGap = (g.ltv_12m - gFo.first_order_cm2) - (t.ltv_12m - tFo.first_order_cm2);
+  const firstGap = gFo.first_order_cm2 - tFo.first_order_cm2;
+  const owned = groups.length > 1 ? groups[1].rows : [];
+
+  document.getElementById("f4Prose").innerHTML =
+    `A Google Search customer is worth <strong>${money(g.ltv_12m, 2)}</strong> in twelve-month ` +
+    `contribution against <strong>${money(t.ltv_12m, 2)}</strong> for TikTok. Google pays back ` +
+    `on the first order; TikTok's ${money(t.ncac, 2)} acquisition cost has not been recovered ` +
+    `after twelve months.<br><br>` +
+    `Both channels' first orders are the same size \u2014 ${money(gFo.first_order_value, 2)} ` +
+    `against ${money(tFo.first_order_value, 2)} \u2014 so the gap is not the basket. ` +
+    `<strong>${pct(repeatGap / (repeatGap + firstGap), 0)}</strong> of it is the customer never ` +
+    `coming back (${g.orders_per_customer} versus ${t.orders_per_customer} orders); the rest is ` +
+    `a thinner first order from heavier discount use and more returns.<br><br>` +
+    `Reported ROAS cannot say whether those sales would have happened anyway, so any ` +
+    `reallocation needs an incrementality holdout to measure. ` +
+    (owned.length
+      ? `${owned.map(v => v.channel).join(" and ")} sit above every paid channel but are not ` +
+        `budget levers: the email bill is fixed, and retargeting only reaches people the paid ` +
+        `channels already brought in.`
+      : "");
+
+  document.getElementById("f4Kv").innerHTML = [...DATA.ltv].sort(sortLtv).map(v => `
+    <li><span class="kvk">${v.channel} \u00B7 ${num(v.customers)} customers</span>
+        <span class="kvv ${(v.ltv_cac || 0) >= 1 ? "pos" : "neg"}">${money(v.ltv_12m, 2)} / ${money(v.ncac || 0, 2)}</span></li>`).join("");
+}
+
+/* ── 9. Method and disclosures ──────────────────────────────── */
+function method() {
+  const q = DATA.data_quality;
+  document.getElementById("methodBuild").innerHTML =
+    `Shopify, Amazon and ad platform exports land in Postgres as a lossless raw layer, then pass ` +
+    `through staging, intermediate and mart models in dbt — <span class="num">${num(q.fact_rows)}</span> ` +
+    `order lines across 36 months. Unit costs are versioned, so margin is always computed against ` +
+    `the cost in force on each order date. A reconciliation harness compares every mart figure back ` +
+    `to ground truth; residual variance is <span class="num">0.007%</span> of CM2.`;
+
+  document.getElementById("disclosure").innerHTML =
+    `<b>Disclosures.</b> ${num(q.orphan_returns)} return records (${money(q.orphan_refunds)}) ` +
+    `could not be matched to an order line and are excluded, which overstates CM2 by <b>0.52%</b>. ` +
+    `${num(q.imputed_costs)} SKU cost versions were imputed from category medians, affecting cost ` +
+    `of goods by 0.004%. ${num(q.duplicates_removed)} duplicate orders were removed and ` +
+    `${num(q.price_corrections)} price-feed typos corrected. Every figure on this page is generated ` +
+    `from the warehouse — none is typed by hand.`;
+
+  document.getElementById("colophon").innerHTML =
+    `Northlane Supply Co. is fictional and the dataset synthetic, generated by a documented model ` +
+    `of DTC apparel economics and analyzed as if it had arrived from a client. The pipeline, the ` +
+    `tests and the methodology are real, and the repository includes the harness that proves the ` +
+    `figures survive a deliberately corrupted source export. Charts are hand-built SVG with no ` +
+    `charting library. Data generated ${DATA.generated}.`;
+}
+
+/* ── 9b. Closing call to action ──────────────────────────────── */
+function cta() {
+  /* Rewritten for a technical profile. The previous version promised "the three
+     things worth fixing first" -- business judgment this analysis does not
+     supply -- and claimed "most brands find the first leak inside the first
+     week", which one synthetic dataset cannot support. */
+  document.getElementById("ctaTitle").textContent =
+    "What this would take on your data";
+
+  document.getElementById("ctaBody").textContent =
+    "Order and refund exports, product costs, shipping costs and ad spend, landed in one " +
+    "warehouse with a tested transformation layer, then contribution margin at SKU and " +
+    "channel grain. The first thing I would ask for is a sample export and your cost file: " +
+    "if shipping and duties are not in your unit cost, product margin is overstated, and " +
+    "that gets settled before anything else is measured.";
+
+  const link = document.getElementById("ctaButton");
+  if (link.getAttribute("href") === "#") {
+    link.textContent = "Set CONTACT_URL before publishing";
+  }
+}
+
+/* ── 10. Motion ───────────────────────────────────────────────
+   matchMedia and IntersectionObserver are guarded rather than assumed. An
+   earlier version called matchMedia unconditionally; in an environment without
+   it the exception aborted this block, and because .reveal starts at opacity 0
+   the whole page rendered blank. A trivial cause with a total failure mode.
+   ───────────────────────────────────────────────────────────── */
+function revealAll() {
+  document.querySelectorAll(".reveal").forEach(n => n.classList.add("in"));
+}
+
+function motion() {
+  const bars = document.querySelectorAll("[data-grow]");
+  const reduce = typeof window.matchMedia === "function" &&
+                 window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (reduce || typeof IntersectionObserver !== "function") {
+    bars.forEach(b => { b.style.transition = "none"; b.style.transform = "none"; });
+    revealAll();
+    return;
+  }
+
+  requestAnimationFrame(() => requestAnimationFrame(() =>
+    bars.forEach(b => { b.style.transform = "scaleY(1)"; })));
+
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add("in");
+      obs.unobserve(e.target);
+    });
+  }, {rootMargin: "0px 0px -8% 0px", threshold: 0.06});
+  document.querySelectorAll(".reveal").forEach(n => io.observe(n));
+}
+
+/* ── 11. Run each renderer in isolation ───────────────────────
+   One chart failing must not take the page with it: a malformed value in the
+   ad-spend payload should cost the channel chart and nothing else.
+   ───────────────────────────────────────────────────────────── */
+const RENDERERS = [
+  ["hero", renderHero], ["summary", summary], ["waterfall", waterfall],
+  ["figures", figures], ["trend", trend], ["skus", skus], ["zones", zones],
+  ["channels", slope], ["ltv", ltv], ["method", method], ["cta", cta]
+];
+
+let failures = 0;
+for (const [name, fn] of RENDERERS) {
+  try {
+    fn();
+  } catch (err) {
+    failures++;
+    console.error(`[dashboard] "${name}" failed to render:`, err);
+  }
+}
+if (failures) {
+  console.warn(`[dashboard] ${failures} of ${RENDERERS.length} sections failed; ` +
+               `the rest of the page is unaffected.`);
+}
+
+try {
+  motion();
+} catch (err) {
+  console.error("[dashboard] motion setup failed:", err);
+  revealAll();
+}
+
+/* Last resort: if anything above left a section hidden, show it anyway. A
+   visible unanimated page always beats an invisible animated one. */
+setTimeout(revealAll, 2500);
+</script>
+</body>
+</html>

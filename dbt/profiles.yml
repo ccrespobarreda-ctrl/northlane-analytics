@@ -1,0 +1,14 @@
+# Committed profile for CI only. Every value comes from the environment;
+# no credential is stored here. Local development uses ~/.dbt/profiles.yml.
+northlane:
+  target: ci
+  outputs:
+    ci:
+      type: postgres
+      host: "{{ env_var('PGHOST', 'localhost') }}"
+      port: "{{ env_var('PGPORT', '5432') | int }}"
+      user: "{{ env_var('PGUSER', 'analytics') }}"
+      password: "{{ env_var('PGPASSWORD', 'analytics') }}"
+      dbname: "{{ env_var('PGDATABASE', 'northlane') }}"
+      schema: analytics
+      threads: 4

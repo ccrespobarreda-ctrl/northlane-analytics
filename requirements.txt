@@ -1,0 +1,12 @@
+# Data generation
+numpy>=1.26
+pandas>=2.1
+pyarrow>=14.0        # parquet, for the generator self-test reference frames
+
+# Loading (Postgres / Neon)
+psycopg2-binary>=2.9
+python-dotenv>=1.0
+
+# Transformation (optional but recommended)
+dbt-core>=1.7
+dbt-postgres>=1.7

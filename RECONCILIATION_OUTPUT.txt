@@ -1,0 +1,37 @@
+Excluding 295 orphaned returns from the reference (the pipeline quarantines them; see int_returns_orphaned)
+
+Finding 1 -- two worst SKUs by CM2, discovered from the dirty data:
+        sku  units            return_rate      cm1        cm2
+NL-OUT-0023   4038 0.46062407132243684993 14328.28 -100810.87
+NL-OUT-0017   2434 0.45891536565324568611 15043.40  -52819.82
+  planted SKUs:    ['NL-OUT-0017', 'NL-OUT-0023']
+  discovered SKUs: ['NL-OUT-0017', 'NL-OUT-0023']
+  match: YES
+
+Defect handling, as resolved by the pipeline:
+  CM2 overstated by quarantine    $    25,222  (0.52% of CM2)
+  duplicate orders removed            393
+  price typos corrected                93
+  unit costs imputed (SKU vers.)        5
+  returns quarantined                 295  ($33,868 of refunds excluded)
+
+====================================================================================
+RECONCILIATION: generator truth vs pipeline output
+====================================================================================
+  [PASS] Order lines                       173,217         173,217  +0.000%
+  [PASS] Distinct orders                    98,300          98,300  +0.000%
+  [PASS] Customers                          72,000          72,000  +0.000%
+  [PASS] FY2025 gross revenue       $10,017,805.50  $10,017,805.50  +0.000%
+  [PASS] FY2025 discounted revenue  $ 8,933,851.83  $ 8,933,851.83  +0.000%
+  [PASS] FY2025 net revenue (after returns) $ 6,971,458.67  $ 6,971,458.67  +0.000%
+  [PASS] FY2025 refunds             $ 1,962,393.16  $ 1,962,393.16  +0.000%
+  [PASS] FY2025 COGS                $ 3,870,867.90  $ 3,870,700.79  -0.004%
+  [PASS] FY2025 CM1                 $ 3,862,735.46  $ 3,862,902.57  +0.004%
+  [PASS] FY2025 CM2                 $ 2,358,596.72  $ 2,358,763.83  +0.007%
+  [PASS] F1 defect-SKU CM2          $  -153,630.69  $  -153,630.69  -0.000%
+  [PASS] F1 defect-SKU CM1          $    29,371.68  $    29,371.68  -0.000%
+  [PASS] F3 Affiliate CM2           $   198,843.30  $   198,734.45  -0.055%
+  [PASS] F3 Affiliate ad spend      $   231,735.84  $   231,735.84  +0.000%
+  [PASS] F3 total ad spend          $ 3,128,249.09  $ 3,128,249.09  +0.000%
+
+15/15 metrics reconcile (exact class 0.01%, imputed class 0.10%)

@@ -1,0 +1,119 @@
+version: 2
+
+models:
+  - name: fct_order_lines
+    description: >
+      Central fact table, one row per order line, with the CM1/CM2 waterfall.
+      Returns are attributed to the original order date.
+    columns:
+      - name: order_line_key
+        tests: [unique, not_null]
+      - name: order_date_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+      - name: product_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_product')
+              field: product_key
+      - name: customer_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customer')
+              field: customer_key
+      - name: geography_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_geography')
+              field: geography_key
+      - name: acquisition_channel_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_channel')
+              field: channel_key
+      - name: net_revenue
+        tests: [not_null]
+      - name: cm2
+        tests: [not_null]
+
+  - name: dim_product
+    columns:
+      - name: product_key
+        tests: [unique, not_null]
+      - name: category
+        tests:
+          - accepted_values:
+              values: [Outerwear, Tops, Bottoms, Footwear, Accessories, Bags]
+
+  - name: dim_customer
+    columns:
+      - name: customer_key
+        tests: [unique, not_null]
+      - name: cohort_month
+        tests: [not_null]
+      - name: home_geography_key
+        tests:
+          - relationships:
+              to: ref('dim_geography')
+              field: geography_key
+
+  - name: dim_date
+    columns:
+      - name: date_key
+        tests: [unique, not_null]
+      - name: date_day
+        tests: [unique, not_null]
+
+  - name: dim_geography
+    columns:
+      - name: geography_key
+        tests: [unique, not_null]
+      - name: shipping_zone
+        tests: [not_null]
+
+  - name: dim_channel
+    columns:
+      - name: channel_key
+        tests: [unique, not_null]
+
+  - name: fct_ad_spend
+    columns:
+      - name: ad_spend_key
+        tests: [unique, not_null]
+      - name: channel_key
+        tests:
+          - relationships:
+              to: ref('dim_channel')
+              field: channel_key
+
+  - name: fct_returns
+    columns:
+      - name: return_id
+        tests: [unique, not_null]
+      - name: order_line_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('fct_order_lines')
+              field: order_line_key
+
+  - name: fct_channel_economics_monthly
+    columns:
+      - name: month_start
+        tests: [not_null]
+      - name: acquisition_channel_key
+        tests: [not_null]
+
+  - name: fct_customer_cohorts
+    columns:
+      - name: cohort_month
+        tests: [not_null]
+      - name: months_since_first
+        tests: [not_null]

@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: raw
+    description: >
+      Faithful, lossless copy of the source exports. Every column is TEXT by
+      design: the raw layer must be able to hold malformed values so that
+      cleaning decisions happen in staging where they are visible and tested.
+    tables:
+      - name: raw_orders
+      - name: raw_order_lines
+      - name: raw_returns
+      - name: raw_products
+      - name: raw_customers
+      - name: raw_ad_spend
+      - name: raw_geography

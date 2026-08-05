@@ -1,0 +1,97 @@
+
+==============================================================================
+BUSINESS SCALE AND MARGIN STRUCTURE
+==============================================================================
+      orders        gross         net      aov  cm1_pct  cm2_pct  cm3_pct    mer
+year                                                                            
+2023   16847   3482997.41  3086585.70  183.213    0.593    0.364    0.148  4.612
+2024   32922   6860737.54  6120831.00  185.919    0.576    0.355    0.144  4.751
+2025   48531  10017805.50  8933851.83  184.085    0.554    0.337    0.102  4.248
+
+==============================================================================
+FINDING 1  Two Outerwear SKUs: positive CM1, negative CM2
+==============================================================================
+                  units  return_rate          net  cm1_pct  cm2_pct  cm2_per_unit
+grp                                                                              
+defect SKUs        6472        0.464    934081.54    0.029   -0.167       -24.085
+rest of catalog  190873        0.194  17207186.99    0.459    0.291        26.264
+
+  Annual units: 2,157   avoidable returns/yr: 526   cost per return: $82.34
+  >>> Estimated annual recovery if sizing is fixed (46% -> 22%): $43,344
+  >>> Annual CM2 bleed if delisted instead: $51,958
+
+==============================================================================
+FINDING 2  Contribution collapses on deep-discount orders to far zones
+==============================================================================
+                        orders     aov          net         cm2  cm2_per_order  cm2_pct
+deep_discount far_zone                                                                 
+False         False      60262  191.46  11537872.31  3496349.58          58.02     0.30
+              True       26839  191.84   5148883.11  1300062.73          48.44     0.25
+True          False       7788  130.02   1012567.85    67218.56           8.63     0.07
+              True        3411  129.56    441945.26    -6333.04          -1.86    -0.01
+
+  CM2 per order by shipping zone, deep-discount orders only:
+                 orders  cm2_per_order
+  shipping_zone                       
+  2                 802          12.35
+  3                3134          10.74
+  4                2021           7.63
+  5                1831           4.50
+  6                 653           0.88
+  7                1072           0.62
+  8                1686          -4.49
+
+  >>> Scenario: cap discounts at 25%, assume 18% conversion loss
+  >>> Estimated annual CM2 gain: $63,947
+
+==============================================================================
+FINDING 3  Affiliate: best platform ROAS, worst true contribution
+==============================================================================
+                            net       spend  platform_roas  true_roas         cm2        cm3  cm3_pct
+acquisition_channel                                                                                  
+Email/Organic        2249814.34    51993.00          43.27      43.27   688519.98  636526.98     0.28
+Meta Retargeting     1928615.84   179503.04          18.80      10.74   564917.70  385414.66     0.20
+Affiliate            1655255.73   231735.84           8.42       7.14   195045.96  -36689.88    -0.02
+Meta Prospecting     4851758.61  1032597.69           6.34       4.70  1361661.39  329063.70     0.07
+Google Search        5165400.03   956826.64           6.20       5.40  1511243.71  554417.07     0.11
+TikTok Ads           2290423.98   675592.88           6.11       3.39   535909.09 -139683.79    -0.06
+
+  >>> Annual CM3 gap vs Meta Prospecting on the same revenue: $49,652/yr
+
+==============================================================================
+FINDING 4  12-month CM2 LTV vs CAC by acquisition channel
+==============================================================================
+                     customers  orders_per_cust  ltv12_cm2    cac  ltv_cac
+acquisition_channel                                                       
+Affiliate                 4983             1.17      21.65  24.13     0.90
+Email/Organic             4228             1.60      93.00   8.18    11.37
+Google Search             8245             1.88     107.13  53.87     1.99
+Meta Prospecting         10649             1.34      71.82  45.75     1.57
+Meta Retargeting          3729             1.52      87.25  22.67     3.85
+TikTok Ads                6166             1.08      47.24  51.88     0.91
+
+==============================================================================
+SELF-TEST SUMMARY
+==============================================================================
+  [PASS] Revenue scale (2025 gross $8-11M)             $10,017,806
+  [PASS] AOV realistic ($120-210)                      $184.09
+  [PASS] CM1 margin 50-62%                             55.4%
+  [PASS] CM2 margin 28-40%                             33.7%
+  [PASS] CM3 positive but thin (5-16%)                 10.2%
+  [PASS] Blended MER 3.0-5.5                           4.25
+  [PASS] Unit return rate 15-22%                       20.3%
+  [PASS] F1: return rate >= 2x catalog                 46.4% vs 19.4%
+  [PASS] F1: CM1 positive                              $27,469
+  [PASS] F1: CM2 negative                              $-155,875
+  [PASS] F1: recovery is material (> $40k/yr)          $43,344
+  [PASS] F2: margin collapse >= 6x vs blended          $-1.86 vs $49.41/order (-4%)
+  [PASS] F2: segment is material (>2% of orders)       3.5% of orders
+  [PASS] F2: discount cap recovers > $50k/yr           $63,947
+  [PASS] F3: Affiliate has the highest platform ROAS   top ROAS = Affiliate (8.42)
+  [PASS] F3: Affiliate CM3 is negative                 $-36,690
+  [PASS] F3: ROAS rank inverts vs CM3 rank             ROAS #1 of 4, CM3 #3 of 4
+  [PASS] F4: Google LTV >= 2.2x TikTok                 2.27x
+  [PASS] F4: Google LTV:CAC > 1.5                      1.99
+  [PASS] F4: TikTok LTV:CAC < 1.0                      0.91
+
+20/20 checks passed
